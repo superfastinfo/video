@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Stream</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .overlay-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: rgba(37, 211, 102, 0.9);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: background 0.3s ease, opacity 0.5s ease;
+      z-index: 10;
+      opacity: 0; /* hidden initially */
+      pointer-events: none; /* disable click until visible */
+    }
+
+    .overlay-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Center Overlay Icon (like YouTube) */
+    .center-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      text-shadow: 0 0 20px rgba(0,0,0,0.7);
+    }
+
+    .center-icon.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Video -->
+  <video id="bg-video" autoplay muted playsinline></video>
+
+  <!-- Center Overlay Icon -->
+  <div id="center-icon" class="center-icon">▶</div>
+
+  <!-- WhatsApp Button -->
+  <a id="whatsapp-btn" href="https://whatsapp.com/channel/0029VbAoq9p59PwSFPQjh11l" target="_blank" class="overlay-btn">
+    Join WhatsApp Group
+  </a>
+
+  <!-- HLS -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+    const video = document.getElementById('bg-video');
+    const centerIcon = document.getElementById('center-icon');
+    const whatsappBtn = document.getElementById('whatsapp-btn');
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource('playlist.m3u8'); // tumhari m3u8 file ka path
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = 'playlist.m3u8';
+    }
+
+    // Try autoplay with sound
+    video.muted = false;
+    video.play().catch(() => {
+      console.log("Autoplay with sound blocked. Muted mode start.");
+      video.muted = true;
+      video.play();
+    });
+
+    // Toggle play/pause on video click
+    video.addEventListener('click', () => {
+      if (video.paused || video.ended) {
+        video.muted = false; // unmute on user action
+        video.play();
+        showCenterIcon("▶"); // play icon
+      } else {
+        video.pause();
+        showCenterIcon("❚❚"); // pause icon
+      }
+    });
+
+    // Helper: show center overlay briefly
+    function showCenterIcon(symbol) {
+      centerIcon.innerHTML = symbol;
+      centerIcon.classList.add("show");
+      setTimeout(() => {
+        centerIcon.classList.remove("show");
+      }, 600);
+    }
+
+    // Show WhatsApp button after 10s
+    setTimeout(() => {
+      whatsappBtn.classList.add("show");
+    }, 10000);
+  </script>
+</body>
+</html>
